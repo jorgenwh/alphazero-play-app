@@ -40,3 +40,32 @@
   border: 0.015em solid black;
 }
 
+.blackPieceHint {
+  width: 41px;
+  height: 41px;
+  border-radius: 50%;
+  background-color: rgb(38, 38, 38);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.01em solid black;
+  opacity: 25%;
+}
+
+.whitePieceHint {
+  width: 41px;
+  height: 41px;
+  border-radius: 50%;
+  background-color: rgb(220, 220, 220);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.015em solid black;
+  opacity: 25%;
+}
+
+.blackPieceHint:hover {
+  opacity: 75%;
+}
+
+.whitePieceHint:hover {
+  opacity: 75%;
+}

@@ -1,11 +1,14 @@
 import React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import './App.css';
 import { Board } from "./components/Board"
 import { InfoBox } from "./components/InfoBox"
 
-function createDefaultState() {
+let updateQuery = "http://127.0.0.1:5000/get_update"
+let addMoveQuery = "http://127.0.0.1:5000/add_move"
+
+const createDefaultState = () => {
   let defaultState = []
   for (let i = 0; i < 64; i++) { defaultState.push(0) }
   defaultState[27] = -1
@@ -15,39 +18,61 @@ function createDefaultState() {
   return defaultState
 }
 
+const createDefaultValids = () => {
+  let defaultValids = []
+  for (let i = 0; i < 64; i++) { defaultValids.push(0) }
+  return defaultValids
+}
+
 function App() {
-  const [game, setGame] = useState("othello")
   const [curPlayer, setCurPlayer] = useState(1)
   const [state, setState] = useState(createDefaultState())
+  const [validMoves, setValidMoves] = useState(createDefaultValids())
   const [ply, setPly] = useState(1)
 
-  const [apiData, setApiData] = useState()
+  const parseResponse = (response) => {
+    setState(response.boardState)
+    setValidMoves(response.validMoves)
+    setCurPlayer(response.currentPlayer)
+    setPly(response.ply)
+  }
 
-  let apiQuery = "http://127.0.0.1:5000/hello/"
-  console.log("Querying: " + apiQuery)
-
-  /*fetch(apiQuery)
-    .then((results) => results.json())
-    .then((data) => setApiData(data))
-  */
-  console.log(apiData)
+  useEffect(() => {
+    fetch(updateQuery)
+      .then((response) => response.json())
+      .then((response) => parseResponse(response))
+      .catch((err) => console.log(err))
+  }, [])
 
   const applyMove = (boardIdx) => {
+    let moveData = {"move": boardIdx}
+
+    fetch(addMoveQuery, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(moveData)
+    })
+
     let nextState = state
     nextState[boardIdx] = curPlayer
 
     setCurPlayer(-curPlayer)
     setState(nextState)
-    setPly(ply + 1)
   }
 
   return (
     <div className="appContainer">
       <div className="infoBox">
-        <InfoBox game={game} curPlayer={curPlayer}/>
+        <InfoBox curPlayer={curPlayer}/>
       </div>
       <div className="gameBoard">
-        <Board state={state} applyMove={applyMove}/>
+        <Board 
+          state={state} 
+          validMoves={validMoves} 
+          curPlayer={curPlayer} 
+          applyMove={applyMove}/>
       </div>
     </div>
   );
