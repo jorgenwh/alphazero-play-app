@@ -48,7 +48,7 @@
   margin: auto;
   box-shadow: 2px 2px 7px black;
   border: 0.01em solid black;
-  opacity: 25%;
+  opacity: 18%;
 }
 
 .whitePieceHint {
@@ -59,13 +59,13 @@
   margin: auto;
   box-shadow: 2px 2px 7px black;
   border: 0.015em solid black;
-  opacity: 25%;
+  opacity: 18%;
 }
 
 .blackPieceHint:hover {
-  opacity: 75%;
+  opacity: 85%;
 }
 
 .whitePieceHint:hover {
-  opacity: 75%;
+  opacity: 85%;
 }

@@ -30,18 +30,18 @@ export function Piece(props) {
 
 export function Square(props) {
   const onClick = (event) => {
-    if (props.state[props.idx] === 0 && props.validMoves[props.idx] === 1) {
+    if (props.piece === 0 && props.validMove === 1) {
       props.applyMove(props.idx)
     } else {
-      console.log("Invalid move!")
+      console.log("Invalid move! (" + props.idx + ")")
     }
   }
 
   return (
     <div className="square" onClick={onClick}>
       <Piece 
-        value={props.state[props.idx]} 
-        valid={props.validMoves[props.idx]} 
+        value={props.piece} 
+        valid={props.validMove} 
         curPlayer={props.curPlayer}
       />
     </div>

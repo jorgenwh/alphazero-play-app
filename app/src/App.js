@@ -3,76 +3,102 @@ import { useState, useEffect } from "react"
 
 import './App.css';
 import { Board } from "./components/Board"
-import { InfoBox } from "./components/InfoBox"
+import { TopInfoBox } from "./components/TopInfoBox"
+import { BottomInfoBox } from "./components/BottomInfoBox"
+import { getStartBoard, getValidActions, step, isConcluded, getResult, getSum } from "./components/OthelloRules"
 
-let updateQuery = "http://127.0.0.1:5000/get_update"
-let addMoveQuery = "http://127.0.0.1:5000/add_move"
+const resetQuery = "http://127.0.0.1:5000/reset"
+const postStateQuery = "http://127.0.0.1:5000/post_state"
 
-const createDefaultState = () => {
-  let defaultState = []
-  for (let i = 0; i < 64; i++) { defaultState.push(0) }
-  defaultState[27] = -1
-  defaultState[28] = 1
-  defaultState[35] = 1
-  defaultState[36] = -1
-  return defaultState
-}
+fetch(resetQuery)
+  .then((response) => response.json())
+  .then((response) => console.log("reset success: " + response.success))
+  .catch((err) => console.log(err))
 
-const createDefaultValids = () => {
-  let defaultValids = []
-  for (let i = 0; i < 64; i++) { defaultValids.push(0) }
-  return defaultValids
+const postBoardAndGetMove = (board, curPlayer) => {
+  return fetch(postStateQuery, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({"state": board, "curPlayer": curPlayer})
+  })
+    .then((response) => response.json())
+    .then((response) => {
+      return response.move
+    })
+    .catch((err) => console.log(err))
 }
 
 function App() {
+  const [aiPlayer, setAiPlayer] = useState(-1)
   const [curPlayer, setCurPlayer] = useState(1)
-  const [state, setState] = useState(createDefaultState())
-  const [validMoves, setValidMoves] = useState(createDefaultValids())
+  const [state, setState] = useState(getStartBoard())
+  const [validMoves, setValidMoves] = useState(getValidActions(state, curPlayer))
   const [ply, setPly] = useState(1)
-
-  const parseResponse = (response) => {
-    setState(response.boardState)
-    setValidMoves(response.validMoves)
-    setCurPlayer(response.currentPlayer)
-    setPly(response.ply)
-  }
-
-  useEffect(() => {
-    fetch(updateQuery)
-      .then((response) => response.json())
-      .then((response) => parseResponse(response))
-      .catch((err) => console.log(err))
-  }, [])
+  const [winner, setWinner] = useState(0)
 
   const applyMove = (boardIdx) => {
-    let moveData = {"move": boardIdx}
-
-    fetch(addMoveQuery, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(moveData)
-    })
-
-    let nextState = state
-    nextState[boardIdx] = curPlayer
-
-    setCurPlayer(-curPlayer)
+    // Update state based on the move
+    let newCurPlayer = -curPlayer
+    let nextState = state.slice()
+    step(nextState, boardIdx, curPlayer)
     setState(nextState)
+    setPly(ply + 1)
+
+    const concluded = isConcluded(nextState)
+    const result = (concluded) ? getResult(nextState) : 0
+
+    if (concluded) {
+      setValidMoves(getValidActions(nextState, -curPlayer))
+      setWinner(result)
+    } else {
+      let validMoves = getValidActions(nextState, newCurPlayer)
+      if (getSum(validMoves) === 0) {
+        validMoves = getValidActions(nextState, curPlayer)
+        newCurPlayer = -newCurPlayer
+      } else {
+        setCurPlayer(newCurPlayer)
+      }
+      setValidMoves(validMoves) 
+    }
+
+    // if the human player made the move, inform the server about the move made
+    if (newCurPlayer === aiPlayer) {
+      let moveData = postBoardAndGetMove(nextState, newCurPlayer)
+      moveData.then((move) => {
+        console.log("received move: " + move)
+
+        let nextState2 = nextState.splice()
+
+      })
+    }
   }
 
   return (
     <div className="appContainer">
-      <div className="infoBox">
-        <InfoBox curPlayer={curPlayer}/>
+      <div className="gameContainer">
+        <div className="topInfoBox">
+          <TopInfoBox 
+            curPlayer={curPlayer}
+          />
+        </div>
+        <div className="gameBoard">
+          <Board 
+            state={state} 
+            validMoves={validMoves} 
+            curPlayer={curPlayer} 
+            applyMove={applyMove}/>
+        </div>
+        <div className="bottomInfoBox">
+          <BottomInfoBox 
+            ply={ply}
+            winner={winner}
+          />
+        </div>
       </div>
-      <div className="gameBoard">
-        <Board 
-          state={state} 
-          validMoves={validMoves} 
-          curPlayer={curPlayer} 
-          applyMove={applyMove}/>
+      <div className="miscContainer">
+
       </div>
     </div>
   );
