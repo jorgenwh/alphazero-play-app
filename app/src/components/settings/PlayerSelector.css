@@ -1,0 +1,21 @@
+.playerSelector {
+  display: flex;
+  flex-direction: row;
+}
+
+.playerSelectorLabel {
+  font-family: sans-serif;
+  font-weight: lighter;
+  font-size: 1.75em;
+  margin: 0 0 0 0.75em;
+}
+
+.selectorPieceContainer {
+  display: flex;
+  flex-direction: row;
+  margin: 0 0.75em;
+}
+
+.selectorPieceContainer * {
+  margin: auto 0.2em;
+}

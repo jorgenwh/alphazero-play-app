@@ -1,8 +1,8 @@
 import React from "react";
 import "./Settings.css"
 
-import { AZPlayer } from "./AZPlayer";
-import { MCTSSims } from "./MCTSSims";
+import { PlayerSelector } from "./PlayerSelector.js";
+import { MctsSimulationsSelector } from "./MctsSimulationsSelector.js";
 
 export function Settings(props) {
 
@@ -10,8 +10,8 @@ export function Settings(props) {
     <div className="settings">
       <h1 className="settingsTitle">settings</h1>
       <div className="settingsComponentsContainer">
-        <AZPlayer aiPlayer={props.aiPlayer} setAiPlayer={props.setAiPlayer}/> 
-        <MCTSSims setNumRollouts={props.setNumRollouts}/> 
+        <PlayerSelector aiPlayer={props.aiPlayer} setAiPlayer={props.setAiPlayer}/>
+        <MctsSimulationsSelector mctsSimulations={props.mctsSimulations} setMctsSimulations={props.setMctsSimulations}/> 
       </div>
     </div>
   )

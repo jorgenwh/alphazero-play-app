@@ -1,0 +1,99 @@
+.blackPiece {
+  width: 41px;
+  height: 41px;
+  border-radius: 50%;
+  background-color: rgb(38, 38, 38);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.01em solid black;
+}
+
+.whitePiece {
+  width: 41px;
+  height: 41px;
+  border-radius: 50%;
+  background-color: rgb(220, 220, 220);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.015em solid black;
+}
+
+.blackPieceSmall {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: rgb(38, 38, 38);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.01em solid black;
+}
+
+.whitePieceSmall {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: rgb(220, 220, 220);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.015em solid black;
+}
+
+.blackPieceHint {
+  width: 41px;
+  height: 41px;
+  border-radius: 50%;
+  background-color: rgb(38, 38, 38);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.01em solid black;
+  opacity: 18%;
+}
+
+.whitePieceHint {
+  width: 41px;
+  height: 41px;
+  border-radius: 50%;
+  background-color: rgb(220, 220, 220);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.015em solid black;
+  opacity: 18%;
+}
+
+.blackPieceHint:hover {
+  opacity: 85%;
+}
+
+.whitePieceHint:hover {
+  opacity: 85%;
+}
+
+.blackPieceHintSmall {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: rgb(38, 38, 38);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.01em solid black;
+  opacity: 18%;
+}
+
+.whitePieceHintSmall {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: rgb(220, 220, 220);
+  margin: auto;
+  box-shadow: 2px 2px 7px black;
+  border: 0.015em solid black;
+  opacity: 18%;
+}
+
+.blackPieceHintSmall:hover {
+  opacity: 85%;
+}
+
+.whitePieceHintSmall:hover {
+  opacity: 85%;
+}

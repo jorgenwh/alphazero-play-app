@@ -1,12 +1,19 @@
 import React from "react"
 import { useState, useEffect } from "react"
 
-import './App.css';
-import { Board } from "./components/Board"
-import { TopInfoBox } from "./components/TopInfoBox"
-import { BottomInfoBox } from "./components/BottomInfoBox"
-import { getStartBoard, getValidActions, step, isConcluded, getResult, getSum } from "./components/OthelloRules"
-import { Settings } from "./components/settings/Settings"
+import "./App.css"
+import { Board } from "./components/board/Board.js"
+import { BoardHeader } from "./components/board/BoardHeader.js"
+import { BoardFooter } from "./components/board/BoardFooter.js"
+import { Settings } from "./components/settings/Settings.js"
+import {
+  getStartBoard, 
+  getValidActions, 
+  step, 
+  isConcluded, 
+  getResult, 
+  getSum
+} from "./components/logic/OthelloRules.js"
 
 const resetQuery = "http://127.0.0.1:5000/reset"
 const postStateQuery = "http://127.0.0.1:5000/post_state"
@@ -16,11 +23,11 @@ fetch(resetQuery)
   .then((response) => console.log("reset success: " + response.success))
   .catch((err) => console.log(err))
 
-const postBoardAndGetMove = (board, curPlayer, numRollouts) => {
+const postBoardAndGetMove = (board, curPlayer, mctsSimulations) => {
   return fetch(postStateQuery, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({"board": board, "curPlayer": curPlayer, "numRollouts": numRollouts})
+    body: JSON.stringify({"board": board, "curPlayer": curPlayer, "mctsSimulations": mctsSimulations})
   })
     .then((response) => response.json())
     .then((response) => { return response.move })
@@ -36,10 +43,10 @@ function App() {
   const [ply, setPly] = useState(1)
 
   // Misc variables
-  const [aiPlayer, setAiPlayer] = useState(-1) // Which player will AZ play as
-  const [numMCTSRollouts, setNumMCTSRollouts] = useState(40)
+  const [aiPlayer, setAiPlayer] = useState(-1) 
+  const [mctsSimulations, setMctsSimulations] = useState(50)
+  const [renderValidActionHints, setRenderValidActionHints] = useState(true)
   const [appliedMove, setAppliedMove] = useState(-1)
-  const [validHints, setValidHints] = useState(true)
 
   const applyMove = (move) => {
     if (validActions[move] === 0) { console.log("invalid move! (" + move + ")"); return }
@@ -55,57 +62,58 @@ function App() {
     let nextValidActions = getValidActions(nextBoard, nextCurPlayer)
     if (getSum(nextValidActions) === 0) { nextValidActions = getValidActions(nextBoard, curPlayer); nextCurPlayer = curPlayer }
     let nextWinner = isConcluded(nextBoard) ? getResult(nextBoard) : 0
-    let nextPly = ply + 1 
     
     setBoard(nextBoard)
     setValidActions(nextValidActions)
     setCurPlayer(nextCurPlayer)
     setWinner(nextWinner)
-    setPly(nextPly)
+    setPly(ply + 1)
     setAppliedMove(-1)
   }, [appliedMove])
 
   useEffect(() => {
     if (curPlayer !== aiPlayer) { return }
-    setValidHints(false)
+    setRenderValidActionHints(false)
 
-    const move = postBoardAndGetMove(board, curPlayer, numMCTSRollouts)
+    const move = postBoardAndGetMove(board, curPlayer, mctsSimulations)
     move.then((move) => {
       console.log("AlphaZero's move: " + move)
       applyMove(move)
-      setValidHints(true)
+      setRenderValidActionHints(true)
     })
   }, [curPlayer, board, aiPlayer])
 
-  const renderValidActionHints = validHints && curPlayer !== aiPlayer
-
   return (
-    <div className="appContainer">
-      <div className="gameContainer">
-        <div className="topInfoBox">
-          <TopInfoBox 
-            curPlayer={curPlayer}
-          />
-        </div>
-        <div className="gameBoard">
-          <Board 
+    <div className="container">
+      <div className="left">
+        <div className="boardHeaderContainer"><BoardHeader curPlayer={curPlayer}/></div>
+        <div className="boardContainer">
+          <Board
             board={board}
             validActions={validActions}
             curPlayer={curPlayer}
             aiPlayer={aiPlayer}
             renderValidActionHints={renderValidActionHints}
-            applyMove={applyMove}/>
+            applyMove={applyMove}
+          />
         </div>
-        <div className="bottomInfoBox">
-          <BottomInfoBox 
+        <div className="boardFooterContainer">
+          <BoardFooter
             winner={winner}
             ply={ply}
             concluded={getSum(validActions) === 0}
           />
         </div>
       </div>
-      <div className="settingsContainer">
-        <Settings aiPlayer={aiPlayer} setAiPlayer={setAiPlayer} setNumRollouts={setNumMCTSRollouts}/> 
+      <div className="right">
+        <div className="settingsContainer">
+          <Settings 
+            aiPlayer={aiPlayer} 
+            setAiPlayer={setAiPlayer} 
+            mctsSimulations={mctsSimulations}
+            setMctsSimulations={setMctsSimulations}
+          /> 
+        </div>
       </div>
     </div>
   );

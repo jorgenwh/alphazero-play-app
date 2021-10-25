@@ -5,81 +5,16 @@
   flex-direction: column;
   justify-content: center;
   margin: 1.25em;
+  padding: 1em;
 }
 
 .settingsTitle {
   font-family: sans-serif;
-  font-weight:normal;
-  margin: 0.3em auto 1em auto;
+  font-weight: normal;
+  margin: 0 auto 1em auto;
 }
 
 .settingsComponentsContainer {
-
-}
-
-.AZPlayer {
   display: flex;
-  flex-direction: row;
-  margin: 1em;
-}
-
-.AZPlayerLabel {
-  font-family: sans-serif;
-  font-weight: lighter;
-  font-size: 1.75em;
-  margin: 0 0.5em 0 0;
-}
-
-.blackSettingsPiece {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  background-color: rgb(38, 38, 38);
-  margin: auto;
-  box-shadow: 2px 2px 7px black;
-  border: 0.01em solid black;
-  margin: 0 0.3em;
-}
-
-.whiteSettingsPiece {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  background-color: rgb(220, 220, 220);
-  margin: auto;
-  box-shadow: 2px 2px 7px black;
-  border: 0.015em solid black;
-  margin: 0 0.3em;
-}
-
-.blackSettingsPieceNotSelected {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  background-color: rgb(38, 38, 38);
-  margin: auto;
-  box-shadow: 2px 2px 7px black;
-  border: 0.01em solid black;
-  opacity: 30%;
-  margin: 0 0.3em;
-}
-
-.whiteSettingsPieceNotSelected {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  background-color: rgb(220, 220, 220);
-  margin: auto;
-  box-shadow: 2px 2px 7px black;
-  border: 0.015em solid black;
-  opacity: 25%;
-  margin: 0 0.3em;
-}
-
-.blackSettingsPieceNotSelected:hover {
-  opacity: 80%;
-}
-
-.whiteSettingsPieceNotSelected:hover {
-  opacity: 80%;
+  flex-direction: column;
 }

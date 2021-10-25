@@ -53,7 +53,7 @@ def post_state():
   data = request.get_json()
   state = data["board"]
   cur_player = int(data["curPlayer"])
-  num_rollouts = int(data["numRollouts"])
+  num_rollouts = int(data["mctsSimulations"])
 
   board = np.reshape(np.array(state), (8, 8))
   print(PrintColors.blue + "Received current player: " + PrintColors.bold + str(cur_player) + PrintColors.endc)
