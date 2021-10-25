@@ -1,0 +1,19 @@
+.mctsSimsContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.numSimsLabel {
+  font-family: sans-serif;
+  font-weight: lighter;
+  font-size: 1.75em;
+  margin: 0 0.5em 0 0;
+}
+
+.mctsSimsInputField {
+  display: flex;
+  font-family: sans-serif;
+  font-weight: lighter;
+  font-size: 1.25em;
+  max-width: 75px;
+}

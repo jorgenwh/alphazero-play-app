@@ -8,22 +8,23 @@ export function Board(props) {
   for (let i = 0; i < 8; i++) {
     const row = []
     for (let j = 0; j < 8; j++) {
-      const boardIdx = (j * 8) + i 
+      const idx = (j * 8) + i 
+      const pieceValue = props.board[idx]
+      const isValid = props.validActions[idx]
       const square = <Square 
-                        piece={props.state[boardIdx]} 
-                        validMove={props.validMoves[boardIdx]}
+                        piece={pieceValue} 
+                        isValid={isValid}
                         curPlayer={props.curPlayer} 
-                        idx={boardIdx} 
+                        aiPlayer={props.aiPlayer}
+                        idx={idx} 
+                        renderValidActionHints={props.renderValidActionHints}
                         applyMove={props.applyMove}
+                        key={idx}
                       />
       row.push(square)
     }
-    board.push(<div className="row">{row}</div>)
+    board.push(<div className="row" key={i}>{row}</div>)
   }
 
-  return (
-    <div id="board">
-      {board} 
-    </div>
-  )
+  return (<div id="board">{board}</div>)
 }

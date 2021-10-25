@@ -8,7 +8,7 @@ export function TopInfoBox(props) {
     <div className="topInfoBoxContainer">
       <h1 className="gameTitle">othello</h1>
       <h1 className="currentPlayer">current player: </h1>
-      <Piece value={props.curPlayer}/>
+      <Piece piece={props.curPlayer}/>
     </div>
   )
 }

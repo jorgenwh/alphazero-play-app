@@ -4,15 +4,33 @@ from flask_cors import CORS
 import numpy as np
 import random
 
-from rules.othello_rules import OthelloRules
-
 app = Flask(__name__)
 CORS(app)
 
-# Othello
+from alphazero.mcts import MCTS
+from alphazero.misc import load_model, Arguments, PrintColors
+from alphazero.games.othello.othello_rules import OthelloRules
+from alphazero.games.othello.othello_network import OthelloNetwork
+
+from args import args
+print(PrintColors.green + "Successfully loaded argument-file" + PrintColors.endc)
+
+# load game rule set
 rules = OthelloRules()
-board = rules.get_start_board()
-cur_player = 1
+print(PrintColors.green + "Successfully loaded game rule set" + PrintColors.endc)
+
+# create network object
+network = OthelloNetwork(args)
+print(PrintColors.green + "Successfully created network object" + PrintColors.endc)
+
+# load latest model
+load_model(network, "/Users/cola/Documents/projects/alphazero/models", "othello-14block")
+print(PrintColors.green + "Successfully loaded network model" + PrintColors.endc)
+
+mcts = MCTS(rules, network, args)
+print(PrintColors.green + "Successfully created MCTS object" + PrintColors.endc)
+
+print(PrintColors.bold + "AZ Server is ready" + PrintColors.endc)
 
 @app.route("/")
 def landing():
@@ -20,37 +38,38 @@ def landing():
 
 @app.route("/reset")
 def reset():
-  print("RESETTING GAME")
-  global rules
-  global board
-  global cur_player
-  global ply
+  print(PrintColors.bold + "CLEARING SEARCH TREE" + PrintColors.endc)
 
-  board = rules.get_start_board() 
-  cur_player = 1
+  mcts.clear()
 
   response = jsonify({"success": True})
   return response
 
-@app.route('/post_state', methods=["POST"])
+@app.route("/post_state", methods=["POST"])
 def post_state():
   global rules
-  global board
-  global cur_player
-
+  global mcts
+  
   data = request.get_json()
-  state = data["state"]
-  cur_player = data["curPlayer"]
+  state = data["board"]
+  cur_player = int(data["curPlayer"])
+  num_rollouts = int(data["numRollouts"])
+
   board = np.reshape(np.array(state), (8, 8))
+  print(PrintColors.blue + "Received current player: " + PrintColors.bold + str(cur_player) + PrintColors.endc)
+  print(PrintColors.blue + "Received num rollouts: " + PrintColors.bold + str(num_rollouts) + PrintColors.endc)
+  print(PrintColors.blue + "Received board state:" + PrintColors.endc)
+  print(PrintColors.yellow + str(board) + PrintColors.endc)
 
-  valid_actions = rules.get_valid_actions(board, cur_player)
-  move = random.randint(0, 63)
-  while valid_actions[move] == 0:
-    move = random.randint(0, 63) 
+  if cur_player == -1:
+    board = rules.flip(board)
 
-  print("[POST] Received state:")
-  print(board)
-  print("\nReturning move:", move)
+  pi = mcts.get_policy(board, args.temperature, num_rollouts=num_rollouts)
+  move = np.argmax(pi)
+  move = int(move)
+  perceived_value = mcts.Q[(rules.to_string(board), move)]
+
+  print(PrintColors.green + f"Returning move: {move}, and perceived value: {perceived_value}" + PrintColors.endc)
   return jsonify({"move": move}) 
 
 if __name__ == "__main__":

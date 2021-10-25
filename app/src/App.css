@@ -10,7 +10,7 @@
   margin: 1.25em;
 }
 
-.miscContainer {
+.settingsContainer {
   display: flex;
   flex-direction: column;
   margin: 1.25em 5em 1.25em 1.25em;
