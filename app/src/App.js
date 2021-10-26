@@ -15,23 +15,47 @@ import {
   getSum
 } from "./components/logic/OthelloRules.js"
 
-const resetQuery = "http://127.0.0.1:5000/reset"
-const postStateQuery = "http://127.0.0.1:5000/post_state"
+const clearQuery = "http://127.0.0.1:5000/clear"
+const postQuery = "http://127.0.0.1:5000/post"
+const getQuery = "http://127.0.0.1:5000/get"
 
-fetch(resetQuery)
-  .then((response) => response.json())
-  .then((response) => console.log("reset success: " + response.success))
-  .catch((err) => console.log(err))
-
-const postBoardAndGetMove = (board, curPlayer, mctsSimulations) => {
-  return fetch(postStateQuery, {
+const post = (board, curPlayer, mctsSimulations) => {
+  console.log("POSTING (board,curPlayer,mctsSimulations) to server ...")
+  if (mctsSimulations === "") { mctsSimulations = 1 }
+  return fetch(postQuery, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({"board": board, "curPlayer": curPlayer, "mctsSimulations": mctsSimulations})
   })
     .then((response) => response.json())
-    .then((response) => { return response.move })
+    .then((response) => { return response.success })
     .catch((err) => console.log(err))
+}
+
+const get = () => {
+  console.log("GETTING (move,value) from server ...")
+  return fetch(getQuery)
+    .then((response) => response.json())
+    .then((response) => {
+      console.log(response)
+      return response
+    })
+    .catch((err) => console.log(err))
+}
+
+const clear = () => {
+  console.log("POSTING clear request to server ...")
+  const responseSuccess = fetch(clearQuery, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"}
+  })
+    .then((response) => response.json())
+    .then((response) => { return response.success })
+    .catch((err) => console.log(err))
+
+  responseSuccess.then((success) => {
+    console.log("server clear MCTS POST response success: " + success)
+  })
 }
 
 function App() {
@@ -53,6 +77,15 @@ function App() {
     setAppliedMove(move)
   }
 
+  const resetGame = () => {
+    setBoard(getStartBoard())
+    setValidActions(getValidActions(getStartBoard(), 1))
+    setCurPlayer(1)
+    setWinner(0)
+    setPly(1)
+    setAppliedMove(-1)
+  }
+
   useEffect(() => {
     if (appliedMove === -1) { return }
 
@@ -72,14 +105,20 @@ function App() {
   }, [appliedMove])
 
   useEffect(() => {
-    if (curPlayer !== aiPlayer) { return }
+    if (curPlayer !== aiPlayer || winner !== 0) { return }
     setRenderValidActionHints(false)
 
-    const move = postBoardAndGetMove(board, curPlayer, mctsSimulations)
-    move.then((move) => {
-      console.log("AlphaZero's move: " + move)
-      applyMove(move)
-      setRenderValidActionHints(true)
+    const postSuccess = post(board, curPlayer, mctsSimulations)
+    postSuccess.then((postSuccess) => {
+      console.log("server POST response: " + postSuccess)
+      const response = get()
+      response.then((response) => {
+        console.log("server GET response success: " + response.success)
+        const move = response.move
+        const value = response.value
+        applyMove(move)
+        setRenderValidActionHints(true)
+      })
     })
   }, [curPlayer, board, aiPlayer])
 
@@ -112,6 +151,8 @@ function App() {
             setAiPlayer={setAiPlayer} 
             mctsSimulations={mctsSimulations}
             setMctsSimulations={setMctsSimulations}
+            clearMcts={clear}
+            resetGame={resetGame}
           /> 
         </div>
       </div>

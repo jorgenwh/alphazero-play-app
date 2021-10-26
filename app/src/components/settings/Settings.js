@@ -3,6 +3,8 @@ import "./Settings.css"
 
 import { PlayerSelector } from "./PlayerSelector.js";
 import { MctsSimulationsSelector } from "./MctsSimulationsSelector.js";
+import { ClearMctsComponent } from "./ClearMctsComponent.js";
+import { ResetGameComponent } from "./ResetGameComponent.js";
 
 export function Settings(props) {
 
@@ -12,6 +14,8 @@ export function Settings(props) {
       <div className="settingsComponentsContainer">
         <PlayerSelector aiPlayer={props.aiPlayer} setAiPlayer={props.setAiPlayer}/>
         <MctsSimulationsSelector mctsSimulations={props.mctsSimulations} setMctsSimulations={props.setMctsSimulations}/> 
+        <ClearMctsComponent clearMcts={props.clearMcts}/>
+        <ResetGameComponent resetGame={props.resetGame}/>
       </div>
     </div>
   )

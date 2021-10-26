@@ -5,8 +5,8 @@ import { SmallPiece } from "./Piece.js"
 
 export function BoardFooter(props) {
   let winnerDisplay = <h1 className="boardFooterWinnerLabel">none</h1>
+  if (props.concluded && props.winner === 0) { winnerDisplay = <h1 className="boardFooterWinnerLabel">draw</h1> }
   if (props.winner !== 0) { winnerDisplay = <SmallPiece piece={props.winner}/> } 
-  else if (props.concluded === 0) { winnerDisplay = <h1 className="boardFooterWinnerLabel">draw</h1>}
 
   return (
     <div className="boardFooter">

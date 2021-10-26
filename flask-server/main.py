@@ -32,45 +32,78 @@ print(PrintColors.green + "Successfully created MCTS object" + PrintColors.endc)
 
 print(PrintColors.bold + "AZ Server is ready" + PrintColors.endc)
 
+local_board = None
+local_cur_player = None
+local_mcts_simulations = None
+
 @app.route("/")
 def landing():
   return "Empty landing"
 
-@app.route("/reset")
-def reset():
-  print(PrintColors.bold + "CLEARING SEARCH TREE" + PrintColors.endc)
+@app.route("/clear", methods=["POST"])
+def clear():
+  try:
+    print(PrintColors.bold + "CLEARING SEARCH TREE" + PrintColors.endc)
 
-  mcts.clear()
+    mcts.clear()
 
-  response = jsonify({"success": True})
-  return response
+    print(PrintColors.green + "MCTS cleared successfully" + PrintColors.endc)
+    return jsonify({"success": True})
+  except:
+    return jsonify({"success": False})
 
-@app.route("/post_state", methods=["POST"])
-def post_state():
-  global rules
-  global mcts
-  
-  data = request.get_json()
-  state = data["board"]
-  cur_player = int(data["curPlayer"])
-  num_rollouts = int(data["mctsSimulations"])
+@app.route("/get", methods=["GET"])
+def get():
+  try:
+    global rules
+    global mcts
+    global local_board
+    global local_cur_player
+    global local_mcts_simulations
 
-  board = np.reshape(np.array(state), (8, 8))
-  print(PrintColors.blue + "Received current player: " + PrintColors.bold + str(cur_player) + PrintColors.endc)
-  print(PrintColors.blue + "Received num rollouts: " + PrintColors.bold + str(num_rollouts) + PrintColors.endc)
-  print(PrintColors.blue + "Received board state:" + PrintColors.endc)
-  print(PrintColors.yellow + str(board) + PrintColors.endc)
+    if local_cur_player == -1:
+      local_board = rules.flip(local_board)
 
-  if cur_player == -1:
-    board = rules.flip(board)
+    pi = mcts.get_policy(local_board, 0, local_mcts_simulations)
+    move = np.argmax(pi)
+    move = int(move)
+    value = mcts.Q[(rules.to_string(local_board), move)]
+    value = float(value)
 
-  pi = mcts.get_policy(board, args.temperature, num_rollouts=num_rollouts)
-  move = np.argmax(pi)
-  move = int(move)
-  perceived_value = mcts.Q[(rules.to_string(board), move)]
+    print(PrintColors.yellow + "Sending move=" + PrintColors.bold + str(move) + PrintColors.endc)
+    print(PrintColors.yellow + "Sending value=" + PrintColors.bold + str(value) + PrintColors.endc)
 
-  print(PrintColors.green + f"Returning move: {move}, and perceived value: {perceived_value}" + PrintColors.endc)
-  return jsonify({"move": move}) 
+    return jsonify({"success": True, "move": move, "value": value})
+  except:
+    return jsonify({"success": False})
+
+@app.route("/post", methods=["POST"])
+def post():
+  try:
+    global rules
+    global mcts
+    global local_board
+    global local_cur_player
+    global local_mcts_simulations
+    
+    data = request.get_json()
+    state = data["board"]
+    cur_player = int(data["curPlayer"])
+    mcts_simulations = int(data["mctsSimulations"])
+
+    board = np.reshape(np.array(state), (8, 8))
+    print(PrintColors.blue + "Received cur_player=" + PrintColors.bold + str(cur_player) + PrintColors.endc)
+    print(PrintColors.blue + "Received mcts_simulations=" + PrintColors.bold + str(mcts_simulations) + PrintColors.endc)
+    print(PrintColors.blue + "Received board state:" + PrintColors.endc)
+    print(PrintColors.blue + str(board) + PrintColors.endc)
+
+    local_board = board
+    local_cur_player = cur_player
+    local_mcts_simulations = max(2, mcts_simulations)
+
+    return jsonify({"success": True}) 
+  except:
+    return jsonify({"success": False})
 
 if __name__ == "__main__":
   app.run(debug=True)

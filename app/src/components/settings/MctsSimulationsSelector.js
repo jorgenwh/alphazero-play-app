@@ -4,8 +4,11 @@ import "./MctsSimulationsSelector.css"
 
 export function MctsSimulationsSelector(props) {
   const onChange = (event) => {
-    console.log("updating num rollouts to: " + event.target.value)
-    props.setMctsSimulations(event.target.value)
+    let newValue = event.target.value
+    if (newValue > 2500) { newValue = 2500 }
+
+    console.log("updating num rollouts to: " + newValue)
+    props.setMctsSimulations(newValue)
   }
 
   return (

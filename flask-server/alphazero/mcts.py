@@ -1,10 +1,11 @@
 import numpy as np
 from collections import defaultdict
 from typing import List
+from tqdm import tqdm
 
 from alphazero.rules import Rules
 from alphazero.network import Network
-from alphazero.misc import Arguments
+from alphazero.misc import Arguments, PrintColors
 
 class MCTS():
   """
@@ -26,13 +27,17 @@ class MCTS():
     self.Q.clear()
     self.P.clear()
 
-  def get_policy(self, board: np.ndarray, temperature: float, num_rollouts: int = -1) -> List[int]:
-    if (num_rollouts != -1 and num_rollouts > 0):
-      for _ in range(num_rollouts):
+  def get_policy(self, board: np.ndarray, temperature: float, mcts_simulations: int = -1) -> List[int]:
+    print(PrintColors.yellow, end="")
+    if (mcts_simulations != -1 and mcts_simulations > 0):
+      bar = tqdm(range(mcts_simulations), desc="MCTS Simulations", bar_format="{l_bar}{bar}| Simulation: {n_fmt}/{total_fmt} - Elapsed: {elapsed}")
+      for _ in bar:
         self.search(board)
     else:
-      for _ in range(self.args.monte_carlo_sims):
+      bar = tqdm(range(self.args.monte_carlo_sims), desc="MCTS Simulations", bar_format="{l_bar}{bar}| Simulation: {n_fmt}/{total_fmt} - Elapsed: {elapsed}")
+      for _ in bar:
         self.search(board)
+    print(PrintColors.endc, end="")
 
     s = self.rules.to_string(board)
     raw_policy = [self.N[(s, a)] for a in range(self.rules.get_action_space())]
